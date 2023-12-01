@@ -102,9 +102,20 @@ with tab1:
 
 with tab2:
     if os.path.exists('users_update.csv'):
+        if 'users_name_selected' not in st.session_state:
+            st.session_state.users_name_selected = []
+
         users = pd.read_csv("users_update.csv")
-        users_name_selected = st.multiselect('Users', users['Username'])
+        users_select_all_button = st.button('Select All Users')
+        if (users_select_all_button):
+            users_name_selected = st.multiselect(
+                'Users', users['Username'], default=users['Username'])
+        else:
+            users_name_selected = st.multiselect(
+                'Users', users['Username'], default=st.session_state.users_name_selected)
         users_selected = users[users['Username'].isin(users_name_selected)]
+        if st.session_state.users_name_selected != users_name_selected:
+            st.session_state.users_name_selected = users_name_selected
 
         acw_val = st.number_input(
             'After Contact Work (ACW) timeout', step=1, min_value=0)
