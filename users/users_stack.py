@@ -75,7 +75,8 @@ if load_button:
 
         st.success("Configuration loaded!")
 
-tab1, tab2 = st.tabs(["Deployment", "Configuration"])
+tab1, tab2, tab3 = st.tabs(
+    ["Deployment", "Configuration(ACW)", "Configuration(Profile)"])
 with tab1:
     if os.path.exists('routing_profiles.csv'):
         routing_profiles = pd.read_csv("routing_profiles.csv")
@@ -83,17 +84,17 @@ with tab1:
         order_routing_profiles = routing_profiles.sort_values(
             by=["Name"], ascending=True)
         routing_profile_name_selected = st.selectbox(
-            'Routing Profiles', order_routing_profiles['Name'])
+            'Routing Profiles', order_routing_profiles['Name'], key=1)
 
     if os.path.exists('security_profiles.csv'):
         security_profiles = pd.read_csv("security_profiles.csv")
         order_security_profiles = security_profiles.sort_values(
             by=["Name"], ascending=True)
         security_profile_name_selected = st.selectbox(
-            'Security Profile', order_security_profiles['Name'])
+            'Security Profile', order_security_profiles['Name'], key=12)
 
     uploaded_file = st.file_uploader(
-        "Choose a CSV file of Agents", accept_multiple_files=False, type="csv")
+        "Choose a CSV file of Agents", accept_multiple_files=False, type="csv", key=13)
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
         st.write(df)
@@ -106,13 +107,13 @@ with tab2:
             st.session_state.users_name_selected = []
 
         users = pd.read_csv("users_update.csv")
-        users_select_all_button = st.button('Select All Users')
+        users_select_all_button = st.button('Select All Users', key=2)
         if (users_select_all_button):
             users_name_selected = st.multiselect(
-                'Users', users['Username'], default=users['Username'])
+                'Users', users['Username'], default=users['Username'], key=21)
         else:
             users_name_selected = st.multiselect(
-                'Users', users['Username'], default=st.session_state.users_name_selected)
+                'Users', users['Username'], default=st.session_state.users_name_selected, key=22)
         users_selected = users[users['Username'].isin(users_name_selected)]
         if st.session_state.users_name_selected != users_name_selected:
             st.session_state.users_name_selected = users_name_selected
@@ -120,7 +121,7 @@ with tab2:
         acw_val = st.number_input(
             'After Contact Work (ACW) timeout', step=1, min_value=0)
         auto_accept_val = st.checkbox('Auto-accept calls')
-        update_button = st.button('Update User Configuration')
+        update_button = st.button('Update User Configuration', key=23)
         if (update_button):
             connect_client = boto3.client("connect")
             for index, row in users_selected.iterrows():
@@ -136,6 +137,44 @@ with tab2:
                 )
             st.success("Updated Successfully!")
 
+with tab3:
+    if os.path.exists('routing_profiles.csv'):
+        routing_profiles = pd.read_csv("routing_profiles.csv")
+        order_routing_profiles = routing_profiles.sort_values(
+            by=["Name"], ascending=True)
+        routing_profile_name_selected = st.selectbox(
+            'Routing Profiles', order_routing_profiles['Name'], key=3)
+    if os.path.exists('users_update.csv'):
+        if 'users_name_selected' not in st.session_state:
+            st.session_state.users_name_selected = []
+
+        users = pd.read_csv("users_update.csv")
+        users_select_all_button = st.button('Select All Users', key=31)
+        if (users_select_all_button):
+            users_name_selected = st.multiselect(
+                'Users', users['Username'], default=users['Username'], key=32)
+        else:
+            users_name_selected = st.multiselect(
+                'Users', users['Username'], default=st.session_state.users_name_selected, key=33)
+        users_selected = users[users['Username'].isin(users_name_selected)]
+        if st.session_state.users_name_selected != users_name_selected:
+            st.session_state.users_name_selected = users_name_selected
+
+    update_button = st.button('Update User Configuration', key=34)
+    if (update_button):
+        connect_client = boto3.client("connect")
+        routing_profile_selected = routing_profiles[routing_profiles['Name']
+                                                    == routing_profile_name_selected]
+        routing_profile_id = str(routing_profile_selected.iloc[0]['Id'])
+
+        for index, row in users_selected.iterrows():
+            res = connect_client.update_user_routing_profile(
+                InstanceId=connect_instance_id,
+                UserId=row["Id"],
+                RoutingProfileId=routing_profile_id
+            )
+
+        st.success("Updated Successfully!")
 
 with st.sidebar:
 
