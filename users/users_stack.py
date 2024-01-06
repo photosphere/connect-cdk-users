@@ -80,11 +80,10 @@ tab1, tab2, tab3 = st.tabs(
 with tab1:
     if os.path.exists('routing_profiles.csv'):
         routing_profiles = pd.read_csv("routing_profiles.csv")
-        # st.write(routing_profiles)
         order_routing_profiles = routing_profiles.sort_values(
             by=["Name"], ascending=True)
         routing_profile_name_selected = st.selectbox(
-            'Routing Profiles', order_routing_profiles['Name'], key=1)
+            'Routing Profiles', order_routing_profiles['Name'], key=11)
 
     if os.path.exists('security_profiles.csv'):
         security_profiles = pd.read_csv("security_profiles.csv")
@@ -103,20 +102,18 @@ with tab1:
 
 with tab2:
     if os.path.exists('users_update.csv'):
-        if 'users_name_selected' not in st.session_state:
-            st.session_state.users_name_selected = []
-
         users = pd.read_csv("users_update.csv")
-        users_select_all_button = st.button('Select All Users', key=2)
+        order_users = users.sort_values(
+            by=["Username"], ascending=True)
+        users_default = []
+
+        users_select_all_button = st.button('Select All Users', key=21)
         if (users_select_all_button):
-            users_name_selected = st.multiselect(
-                'Users', users['Username'], default=users['Username'], key=21)
-        else:
-            users_name_selected = st.multiselect(
-                'Users', users['Username'], default=st.session_state.users_name_selected, key=22)
+            users_default = order_users['Username']
+
+        users_name_selected = st.multiselect(
+            'Users', order_users['Username'], default=users_default, key=22)
         users_selected = users[users['Username'].isin(users_name_selected)]
-        if st.session_state.users_name_selected != users_name_selected:
-            st.session_state.users_name_selected = users_name_selected
 
         acw_val = st.number_input(
             'After Contact Work (ACW) timeout', step=1, min_value=0)
@@ -143,22 +140,20 @@ with tab3:
         order_routing_profiles = routing_profiles.sort_values(
             by=["Name"], ascending=True)
         routing_profile_name_selected = st.selectbox(
-            'Routing Profiles', order_routing_profiles['Name'], key=3)
-    if os.path.exists('users_update.csv'):
-        if 'users_name_selected' not in st.session_state:
-            st.session_state.users_name_selected = []
+            'Routing Profiles', order_routing_profiles['Name'], key=31)
 
+    if os.path.exists('users_update.csv'):
         users = pd.read_csv("users_update.csv")
-        users_select_all_button = st.button('Select All Users', key=31)
+        order_users = users.sort_values(
+            by=["Username"], ascending=True)
+        users_default = []
+        users_select_all_button = st.button('Select All Users', key=32)
         if (users_select_all_button):
-            users_name_selected = st.multiselect(
-                'Users', users['Username'], default=users['Username'], key=32)
-        else:
-            users_name_selected = st.multiselect(
-                'Users', users['Username'], default=st.session_state.users_name_selected, key=33)
+            users_default = order_users['Username']
+
+        users_name_selected = st.multiselect(
+            'Users', order_users['Username'], default=users_default, key=33)
         users_selected = users[users['Username'].isin(users_name_selected)]
-        if st.session_state.users_name_selected != users_name_selected:
-            st.session_state.users_name_selected = users_name_selected
 
     update_button = st.button('Update User Configuration', key=34)
     if (update_button):
@@ -297,7 +292,7 @@ class UsersStack(Stack):
         # define agents
         # load agents
         agent_df = pd.read_csv("agents_add.csv")
-        print()
+
         for index, row in agent_df.iterrows():
             cfn_user = connect.CfnUser(self, "CfnUser"+formatted_now+str(index),
                                        instance_arn=connect_instance_arn,
