@@ -60,3 +60,14 @@ streamlit run users/users_stack.py
 ```bash
 streamlit run users/users_stack.py --server.port 8080 --server.address=0.0.0.0 
 ```
+#### Deployment screenshot
+<img width="1573" alt="deploy_screenshot" src="https://github.com/photosphere/connect-cdk-users/assets/3398595/7da69203-7c4f-4fab-8200-eaeb58a33d27">
+
+#### Cloudformation screenshot
+<img width="1360" alt="connect-users-stack" src="https://github.com/photosphere/connect-cdk-users/assets/3398595/473c3faa-e639-438a-a252-0cfe3ceda358">
+
+#### Configuration(ACW) screenshot
+<img width="1557" alt="configure_acw_screenshot" src="https://github.com/photosphere/connect-cdk-users/assets/3398595/627b60bc-b019-4cc1-a08d-7be9910efc7f">
+
+#### Configuration(Profile) screenshot
+<img width="1557" alt="configure_profile_screenshot" src="https://github.com/photosphere/connect-cdk-users/assets/3398595/2b2cc041-cd77-4855-8ab3-24b702b0e8e4">
